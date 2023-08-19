@@ -21,7 +21,7 @@ stages:
               azureSubscription: $(azureSubscription)
               ScriptType: InlineScript
               Inline: |
-                New-AzSubscriptionDeployment -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation) -tags $(tags) -vNetAddressSpace $(vNetAddressSpace) -vNetName $(vNetName) -nsgName $(nsgName) -$(rg_name)
+                New-AzSubscriptionDeployment -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation) -tags $(tags) -vNetAddressSpace $(vNetAddressSpace) -vNetName $(vNetName) -nsgName $(nsgName) -rg_name $(rg_name)
               workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
               azurePowerShellVersion: LatestVersion
               pwsh: true
