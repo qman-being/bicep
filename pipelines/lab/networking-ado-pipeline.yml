@@ -25,7 +25,7 @@ stages:
               azurePowerShellVersion: LatestVersion
               pwsh: true
 
-  - stage:
+  - stage: 'NetworkLabDeploymentStackDeployment'
     dependsOn: 'NetworkLabWhatIf'
     displayName: Network Lab Deployment
 
@@ -48,8 +48,8 @@ stages:
                     azurePowerShellVersion: LatestVersion
                     pwsh: true
 
-  - stage:
-    dependsOn: []
+  - stage: 'NetworkLabDeploymentStackDeletion'
+    dependsOn: 'NetworkLabDeploymentStackDeployment'
     displayName: Network Lab Deletion
 
     jobs:
