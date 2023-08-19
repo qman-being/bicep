@@ -12,7 +12,8 @@ stages:
     jobs:
       - job: 'NetworkLabWhafIfJob'
         displayName: 'Conduct What-If deployment check of resources'
-        pool: 'Azure Pipelines'
+        pool:
+          vmImage: 'windows-latest'
 
         steps:
           - task: AzurePowerShell@5
@@ -32,7 +33,8 @@ stages:
     jobs:
       - deployment: 'NetworkLabDeployment'
         displayName: 'Network Lab Deployment Stack Deployment'
-        pool: 'Azure Pipelines'
+        pool:
+          vmImage: 'windows-latest'
         environment: 'Bicep Lab'
         strategy:
           runOnce:
@@ -56,7 +58,8 @@ stages:
     jobs:
       - deployment: 'NetworkLabDeployment'
         displayName: 'Network Lab Deployment Stack Deletion'
-        pool: 'Azure Pipelines'
+        pool:
+          vmImage: 'windows-latest'
         environment: 'Bicep Lab'
         strategy:
           runOnce:
