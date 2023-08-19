@@ -22,6 +22,7 @@ stages:
               ScriptType: InlineScript
               Inline: |
                 New-AzSubscriptionDeployment -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation) -tags $(tags) -vNetAddressSpace $(vNetAddressSpace) -vNetName $(vNetName) -nsgName $(nsgName) -$(rg_name)
+              workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
               azurePowerShellVersion: LatestVersion
               pwsh: true
 
@@ -45,6 +46,7 @@ stages:
                     ScriptType: InlineScript
                     Inline: |
                       New-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation) -tags $(tags) -vNetAddressSpace $(vNetAddressSpace) -vNetName $(vNetName) -nsgName $(nsgName) -$(rg_name)
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
                     azurePowerShellVersion: LatestVersion
                     pwsh: true
 
@@ -68,5 +70,6 @@ stages:
                     ScriptType: InlineScript
                     Inline: |
                       Remove-AzSubscriptionDeploymentStack -Name $(deploymentStackName)
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
                     azurePowerShellVersion: LatestVersion
                     pwsh: true
