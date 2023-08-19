@@ -69,7 +69,7 @@ stages:
                     azureSubscription: $(azureSubscription)
                     ScriptType: InlineScript
                     Inline: |
-                      Remove-AzSubscriptionDeploymentStack -Name $(deploymentStackName)
+                      Remove-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -DeleteAll
                     workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
                     azurePowerShellVersion: LatestVersion
                     pwsh: true
