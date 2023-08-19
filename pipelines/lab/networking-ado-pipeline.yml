@@ -24,8 +24,7 @@ stages:
               Inline: |
                 New-AzSubscriptionDeployment -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation) -tags $(tags) -vNetAddressSpace $(vNetAddressSpace) -vNetName $(vNetName) -nsgName $(nsgName) -rg_name $(rg_name)
               workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
-              azurePowerShellVersion: LatestVersion
-              pwsh: true
+              preferredAzurePowerShellVersion: 10.1.0
 
   - stage: 'NetworkLabDeploymentStackDeployment'
     dependsOn: 'NetworkLabWhatIf'
@@ -50,8 +49,7 @@ stages:
                     Inline: |
                       New-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation) -tags $(tags) -vNetAddressSpace $(vNetAddressSpace) -vNetName $(vNetName) -nsgName $(nsgName) -rg_name $(rg_name)
                     workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
-                    azurePowerShellVersion: LatestVersion
-                    pwsh: true
+                    preferredAzurePowerShellVersion: 10.1.0
 
   - stage: 'NetworkLabDeploymentStackDeletion'
     dependsOn: 'NetworkLabDeploymentStackDeployment'
@@ -76,5 +74,4 @@ stages:
                     Inline: |
                       Remove-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -DeleteAll
                     workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
-                    azurePowerShellVersion: LatestVersion
-                    pwsh: true
+                    preferredAzurePowerShellVersion: 10.1.0
