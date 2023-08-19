@@ -1,7 +1,7 @@
 // Global Parameters
 
 @description('Location')
-param location string
+param deploymentLocation string
 
 @description('The tags for this deployment')
 param tags object
@@ -26,7 +26,7 @@ targetScope = 'subscription'
 
 resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: rg_name
-  location: location
+  location: deploymentLocation
 }
 
 module vNet 'vnet_and_subnet/vnet_and_subnet.bicep' = {
@@ -36,7 +36,7 @@ module vNet 'vnet_and_subnet/vnet_and_subnet.bicep' = {
   scope: resourceGroup(rg_name)
   name: 'vNetModuleDeployment'
   params: {
-    location: location
+    location: deploymentLocation
     tags: tags
     vNetAddressSpace: vNetAddressSpace
     vNetName: vNetName
@@ -50,7 +50,7 @@ module nsg 'network_security_group/network_security_group.bicep' = {
   scope: resourceGroup(rg_name)
   name: 'nsgModuleDeployment'
   params: {
-    location: location
+    location: deploymentLocation
     nsgName: nsgName
     tags: tags
   }

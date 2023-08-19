@@ -1,0 +1,72 @@
+variables:
+- group: bicep-lab
+
+trigger:
+- none
+
+stages:
+  - stage: 'NetworkLabWhatIf'
+    dependsOn: []
+    displayName: Network Lab What If
+
+    jobs:
+      - job: 'NetworkLabWhafIfJob'
+        displayName: 'Conduct What-If deployment check of resources'
+        pool: 'Azure Pipelines'
+
+        steps:
+          - task: AzurePowerShell@5
+            displayName: 'Azure Powershell What-If task'
+            inputs:
+              azureSubscription: $(azureSubscription)
+              ScriptType: InlineScript
+              Inline: |
+                New-AzSubscriptionDeployment -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation) -tags $(tags) -vNetAddressSpace $(vNetAddressSpace) -vNetName $(vNetName) -nsgName $(nsgName) -$(rg_name)
+              azurePowerShellVersion: LatestVersion
+              pwsh: true
+
+  - stage:
+    dependsOn: 'NetworkLabWhatIf'
+    displayName: Network Lab Deployment
+
+    jobs:
+      - deployment: 'NetworkLabDeployment'
+        displayName: 'Network Lab Deployment Stack Deployment'
+        pool: 'Azure Pipelines'
+        environment: 'Bicep Lab'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzurePowerShell@5
+                  displayName: 'Azure Powershell Network Lab Deployment Stack Deployment'
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    ScriptType: InlineScript
+                    Inline: |
+                      New-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation) -tags $(tags) -vNetAddressSpace $(vNetAddressSpace) -vNetName $(vNetName) -nsgName $(nsgName) -$(rg_name)
+                    azurePowerShellVersion: LatestVersion
+                    pwsh: true
+
+  - stage:
+    dependsOn: []
+    displayName: Network Lab Deletion
+
+    jobs:
+      - deployment: 'NetworkLabDeployment'
+        displayName: 'Network Lab Deployment Stack Deletion'
+        pool: 'Azure Pipelines'
+        environment: 'Bicep Lab'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzurePowerShell@5
+                  displayName: 'Azure Powershell Network Lab Deployment Stack Deployment'
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    ScriptType: InlineScript
+                    Inline: |
+                      Remove-AzSubscriptionDeploymentStack -Name $(deploymentStackName)
+                    azurePowerShellVersion: LatestVersion
+                    pwsh: true
