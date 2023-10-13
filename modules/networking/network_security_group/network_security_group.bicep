@@ -9,7 +9,7 @@ param location string
 @description('The tags for the Network Security Group')
 param tags object
 
-resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-04-01' = {
+resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-05-01' = {
   name: nsgName 
   location: location
   tags: tags
