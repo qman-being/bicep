@@ -27,7 +27,7 @@ var subnets = [
   }
 ]
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-04-01' = {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' = {
   name: vNetName
   location: location
   tags: tags
