@@ -16,7 +16,7 @@ This repo contains various Bicep modules for common Azure resources.
 The Git repository contains the following directories:
 
 ```sh
-📁 labs # these are lab environments composed of multiple modules
-📁 modules # these are common Azure Terraform Modules
+📁 modules # these are common Azure Bicep modules
+📁 pipelines # these Azure Pipeline files
 📁 production # these are modules specific to my own environment
 ```
