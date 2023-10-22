@@ -33,7 +33,7 @@ stages:
               azureSubscription: $(azureSubscription)
               ScriptType: InlineScript
               Inline: |
-                New-AzSubscriptionDeployment -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation)
+                New-AzSubscriptionDeployment -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf
               workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
               preferredAzurePowerShellVersion: 10.1.0
 
