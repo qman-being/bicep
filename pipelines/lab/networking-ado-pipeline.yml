@@ -1,5 +1,5 @@
 variables:
-- group: bicep-lab
+- group: bicep-network-lab
 
 trigger:
 - none
@@ -16,13 +16,24 @@ stages:
           vmImage: 'windows-latest'
 
         steps:
+
+          - task: replacetokens@5
+            inputs:
+              rootDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
+              targetFiles: '**/*.bicepparam'
+              encoding: 'auto'
+              tokenPattern: 'default'
+              writeBOM: true
+              actionOnMissing: 'warn'
+              enableTelemetry: false
+
           - task: AzurePowerShell@5
             displayName: 'Azure Powershell What-If task'
             inputs:
               azureSubscription: $(azureSubscription)
               ScriptType: InlineScript
               Inline: |
-                New-AzSubscriptionDeployment -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation) -tags $(tags) -vNetAddressSpace $(vNetAddressSpace) -vNetName $(vNetName) -nsgName $(nsgName) -rg_name $(rg_name)
+                New-AzSubscriptionDeployment -Location $(Location) -TemplateFile ".\main.bicep" -WhatIf -deploymentLocation $(deploymentLocation)
               workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
               preferredAzurePowerShellVersion: 10.1.0
 
@@ -41,13 +52,24 @@ stages:
             deploy:
               steps:
                 - checkout: self
+
+                - task: replacetokens@5
+                  inputs:
+                    rootDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
+                    targetFiles: '**/*.bicepparam'
+                    encoding: 'auto'
+                    tokenPattern: 'default'
+                    writeBOM: true
+                    actionOnMissing: 'warn'
+                    enableTelemetry: false
+
                 - task: AzurePowerShell@5
                   displayName: 'Azure Powershell Network Lab Deployment Stack Deployment'
                   inputs:
                     azureSubscription: $(azureSubscription)
                     ScriptType: InlineScript
                     Inline: |
-                      New-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -Location $(Location) -TemplateFile ".\main.bicep" -deploymentLocation $(deploymentLocation) -tags $(tags) -vNetAddressSpace $(vNetAddressSpace) -vNetName $(vNetName) -nsgName $(nsgName) -rg_name $(rg_name)
+                      New-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -Location $(Location) -TemplateFile ".\main.bicep" -TemplateParameterFile ".\main.bicepparam"
                     workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
                     preferredAzurePowerShellVersion: 10.1.0
 

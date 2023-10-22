@@ -15,3 +15,5 @@ resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023-05-0
   tags: tags
   properties: {}
 }
+
+output nsgId string = networkSecurityGroup.id
