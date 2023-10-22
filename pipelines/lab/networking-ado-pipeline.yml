@@ -84,7 +84,7 @@ stages:
                     azureSubscription: $(azureSubscription)
                     ScriptType: InlineScript
                     Inline: |
-                      New-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -Location $(Location) -TemplateFile ".\main.bicep" -TemplateParameterFile ".\main.bicepparam" -DenySettingsMode None
+                      New-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -Location $(Location) -TemplateFile ".\main.bicep" -TemplateParameterFile ".\main.bicepparam" -DenySettingsMode None -Force
                     workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
                     preferredAzurePowerShellVersion: 10.1.0
 
