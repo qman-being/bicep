@@ -37,6 +37,24 @@ stages:
               workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
               preferredAzurePowerShellVersion: 10.1.0
 
+          - task: ArchiveFiles@2
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+            displayName: 'Create Plan Artifact'
+            inputs:
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)/modules/networking/'
+              includeRootFolder: false
+              archiveType: 'tar'
+              tarCompression: 'gz'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).tgz'
+              replaceExistingArchive: true
+            
+          - task: PublishPipelineArtifact@1
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+            displayName: 'Publish Plan Artifact'
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'bicep-network-plan'
+
   - stage: 'NetworkLabDeploymentStackDeployment'
     dependsOn: 'NetworkLabWhatIf'
     displayName: Network Lab Deployment
@@ -53,15 +71,12 @@ stages:
               steps:
                 - checkout: self
 
-                - task: replacetokens@5
+                - task: ExtractFiles@1
+                  displayName: 'Extract Plan Artifact'
                   inputs:
-                    rootDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
-                    targetFiles: '**/*.bicepparam'
-                    encoding: 'auto'
-                    tokenPattern: 'default'
-                    writeBOM: true
-                    actionOnMissing: 'warn'
-                    enableTelemetry: false
+                    archiveFilePatterns: '$(Pipeline.Workspace)/bicep-network-plan/$(Build.BuildNumber).tgz'
+                    destinationFolder: '$(System.DefaultWorkingDirectory)/modules/networking/'
+                    cleanDestinationFolder: true
 
                 - task: AzurePowerShell@5
                   displayName: 'Azure Powershell Network Lab Deployment Stack Deployment'
@@ -94,6 +109,6 @@ stages:
                     azureSubscription: $(azureSubscription)
                     ScriptType: InlineScript
                     Inline: |
-                      Remove-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -DeleteAll
+                      Remove-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -Force -DeleteAll
                     workingDirectory: '$(System.DefaultWorkingDirectory)/modules/networking/'
                     preferredAzurePowerShellVersion: 10.1.0
