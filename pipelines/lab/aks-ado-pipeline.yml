@@ -1,0 +1,114 @@
+variables:
+- group: bicep-aks-lab
+
+trigger:
+- none
+
+stages:
+  - stage: 'AKSLabWhatIf'
+    dependsOn: []
+    displayName: AKS Lab What If
+
+    jobs:
+      - job: 'AKSLabWhafIfJob'
+        displayName: 'Conduct What-If deployment check of resources'
+        pool:
+          vmImage: 'windows-latest'
+
+        steps:
+
+          - task: replacetokens@5
+            inputs:
+              rootDirectory: '$(System.DefaultWorkingDirectory)/modules/aks/'
+              targetFiles: '**/*.bicepparam'
+              encoding: 'auto'
+              tokenPattern: 'default'
+              writeBOM: true
+              actionOnMissing: 'warn'
+              enableTelemetry: false
+
+          - task: AzurePowerShell@5
+            displayName: 'Azure Powershell What-If task'
+            inputs:
+              azureSubscription: $(azureSubscription)
+              ScriptType: InlineScript
+              Inline: |
+                New-AzSubscriptionDeployment -Location $(Location) -TemplateFile ".\main.bicep" -TemplateParameterFile ".\main.bicepparam" -WhatIf
+              workingDirectory: '$(System.DefaultWorkingDirectory)/modules/aks/'
+              preferredAzurePowerShellVersion: 10.1.0
+
+          - task: ArchiveFiles@2
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+            displayName: 'Create Plan Artifact'
+            inputs:
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)/modules/aks/'
+              includeRootFolder: false
+              archiveType: 'tar'
+              tarCompression: 'gz'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).tgz'
+              replaceExistingArchive: true
+            
+          - task: PublishPipelineArtifact@1
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+            displayName: 'Publish Plan Artifact'
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'bicep-aks-plan'
+
+  - stage: 'AKSLabDeploymentStackDeployment'
+    dependsOn: 'AKSLabWhatIf'
+    displayName: AKS Lab Deployment
+
+    jobs:
+      - deployment: 'AKSLabDeployment'
+        displayName: 'AKS Lab Deployment Stack Deployment'
+        pool:
+          vmImage: 'windows-latest'
+        environment: 'Bicep Lab'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - task: ExtractFiles@1
+                  displayName: 'Extract Plan Artifact'
+                  inputs:
+                    archiveFilePatterns: '$(Pipeline.Workspace)/bicep-aks-plan/$(Build.BuildNumber).tgz'
+                    destinationFolder: '$(System.DefaultWorkingDirectory)/modules/aks/'
+                    cleanDestinationFolder: true
+
+                - task: AzurePowerShell@5
+                  displayName: 'Azure Powershell AKS Lab Deployment Stack Deployment'
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    ScriptType: InlineScript
+                    Inline: |
+                      New-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -Location $(Location) -TemplateFile ".\main.bicep" -TemplateParameterFile ".\main.bicepparam" -DenySettingsMode None -Force
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/modules/aks/'
+                    preferredAzurePowerShellVersion: 10.1.0
+
+  - stage: 'AKSLabDeploymentStackDeletion'
+    dependsOn: 'AKSLabDeploymentStackDeployment'
+    displayName: AKS Lab Deletion
+
+    jobs:
+      - deployment: 'AKSLabDeployment'
+        displayName: 'AKS Lab Deployment Stack Deletion'
+        pool:
+          vmImage: 'windows-latest'
+        environment: 'Bicep Lab'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzurePowerShell@5
+                  displayName: 'Azure Powershell AKS Lab Deployment Stack Deployment'
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    ScriptType: InlineScript
+                    Inline: |
+                      Remove-AzSubscriptionDeploymentStack -Name $(deploymentStackName) -Force -DeleteAll
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/modules/aks/'
+                    preferredAzurePowerShellVersion: 10.1.0
