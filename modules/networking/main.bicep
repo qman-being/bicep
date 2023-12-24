@@ -32,7 +32,7 @@ targetScope = 'subscription'
 // ------ Resources ------
 
 // Resource Group
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupName
   location: deploymentLocation
 }
