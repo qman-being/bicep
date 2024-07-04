@@ -21,7 +21,7 @@ param nsgId string
 @description('The tags for the vNet')
 param tags object
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-11-01' = {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-01-01' = {
   name: vNetName
   location: location
   tags: tags
